@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+    .todo-container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      width: 400px;
+    }
+    h2 {
+      text-align: center;
+    }
+    input {
+      width: 70%;
+      padding: 8px;
+      margin-right: 5px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+    }
+    button {
+      padding: 8px 12px;
+      border: none;
+      background: #4CAF50;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #fafafa;
+      margin: 8px 0;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .edit {
+      background: #2196F3;
+    }
+    .delete {
+      background: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <div class="todo-container">
+    <h2>To-Do List</h2>
+    <input type="text" id="taskInput" placeholder="Enter task">
+    <button onclick="addTask()">Add</button>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById("taskInput");
+    const taskList = document.getElementById("taskList");
+
+    // Load tasks from localStorage
+    window.onload = function () {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.forEach(task => renderTask(task));
+    };
+
+    function addTask() {
+      if (taskInput.value.trim() === "") return;
+      const task = { id: Date.now(), text: taskInput.value };
+      renderTask(task);
+      saveTask(task);
+      taskInput.value = "";
+    }
+
+    function renderTask(task) {
+      const li = document.createElement("li");
+      li.setAttribute("data-id", task.id);
+      li.innerHTML = `
+        <span>${task.text}</span>
+        <div>
+          <button class="edit" onclick="editTask(${task.id})">Edit</button>
+          <button class="delete" onclick="deleteTask(${task.id})">Delete</button>
+        </div>
+      `;
+      taskList.appendChild(li);
+    }
+
+    function saveTask(task) {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks.push(task);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function editTask(id) {
+      const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      const task = tasks.find(t => t.id === id);
+      const newText = prompt("Edit Task:", task.text);
+      if (newText) {
+        task.text = newText;
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+        location.reload();
+      }
+    }
+
+    function deleteTask(id) {
+      let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+      tasks = tasks.filter(t => t.id !== id);
+      localStorage.setItem("tasks", JSON.stringify(tasks));
+      document.querySelector(`[data-id="${id}"]`).remove();
+    }
+  </script>
+</body>
+</html>
